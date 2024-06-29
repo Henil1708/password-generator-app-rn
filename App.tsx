@@ -1,118 +1,152 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
 import {
+  Button,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import React, {useState} from 'react';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Form validation
+import {PasswordSchema} from './validations/passwordSchema';
+import {generatePasswordString} from './utils/password';
+import {Form, Formik} from 'formik';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const App = () => {
+  const [password, setPassword] = useState('');
+  const [isPasswordGenerated, setIsPasswordGenerated] = useState(false);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const [lowerCase, setLowerCase] = useState(false);
+  const [upperCase, setUpperCase] = useState(false);
+  const [numbers, setNumbers] = useState(false);
+  const [symbols, setSymbols] = useState(false);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const handleGeneratePassword = () => {
+    const password = generatePasswordString(8, {
+      lowerCase,
+      upperCase,
+      numbers,
+      symbols,
+    });
+    setPassword(password);
+  };
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const resetPasswordState = () => {
+    // reset the password all states whereever you need it
+
+    setPassword('');
+    setLowerCase(true);
+    setUpperCase(false);
+    setNumbers(false);
+    setSymbols(false);
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <ScrollView keyboardShouldPersistTaps="handled">
+      <SafeAreaView style={styles.appContainer}>
+        <StatusBar backgroundColor={'#ACE1AF'} barStyle={'dark-content'} />
+        <View style={styles.formContainer}>
+          <Text style={styles.title}>Password Generator</Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <Formik
+          initialValues={{passwordLength: ''}}
+          validationSchema={PasswordSchema}
+          onSubmit={(values, {setSubmitting}) => {}}>
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            isValid,
+            handleReset,
+            isSubmitting,
+          }) => (
+            <>
+              <View style={styles.inputWrapper}>
+                <Text style={styles.inputHeading}>Password Length</Text>
+                {touched.passwordLength && errors.passwordLength && (
+                  <Text>{errors.passwordLength}</Text>
+                )}
+                <TextInput
+                  style={styles.inputStyle}
+                  value={values.passwordLength}
+                  onChangeText={handleChange('passwordLength')}
+                  placeholder="Ex. 8"
+                  placeholderTextColor="#C7C8CC"
+                  keyboardType="numeric"
+                  autoFocus
+                />
+              </View>
+              <View
+                style={[styles.inputWrapper, lowerCase && styles.selected]}
+                onTouchEnd={() => setLowerCase(!lowerCase)}>
+                <Text style={styles.inputHeading}>
+                  Include lowercase {lowerCase && <Text>(Selected)</Text>}
+                </Text>
+              </View>
+              <View
+                style={[styles.inputWrapper, upperCase && styles.selected]}
+                onTouchEnd={() => setUpperCase(!upperCase)}>
+                <Text style={styles.inputHeading}>
+                  Include upperCase {upperCase && <Text>(Selected)</Text>}
+                </Text>
+              </View>
+              <View
+                style={[styles.inputWrapper, numbers && styles.selected]}
+                onTouchEnd={() => setNumbers(!numbers)}>
+                <Text style={styles.inputHeading}>
+                  Include numbers {numbers && <Text>(Selected)</Text>}
+                </Text>
+              </View>
+              <View
+                style={[styles.inputWrapper, symbols && styles.selected]}
+                onTouchEnd={() => setSymbols(!symbols)}>
+                <Text style={styles.inputHeading}>
+                  Include symbols {symbols && <Text>(Selected)</Text>}
+                </Text>
+              </View>
+              <View style={styles.formActions}>
+                <TouchableOpacity
+                  disabled={!isValid || isSubmitting}
+                  style={styles.primaryButton}
+                  onPress={handleGeneratePassword}>
+                  <Text>Generate Password</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleReset();
+                    resetPasswordState();
+                  }}>
+                  <Text>Reset</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          )}
+        </Formik>
+      </SafeAreaView>
+    </ScrollView>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
+
+const styles = StyleSheet.create({
+  appContainer: {},
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    paddingVertical: 20,
+    backgroundColor: '#ACE1AF',
+    color: '#254336',
+  },
+  formContainer: {},
+  inputWrapper: {},
+  inputHeading: {},
+  formActions: {},
+  selected: {},
+});

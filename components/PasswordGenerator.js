@@ -24,7 +24,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 
 const PasswordGenerator = () => {
   const [password, setPassword] = useState('');
-  const [lowerCase, setLowerCase] = useState(false);
+  const [lowerCase, setLowerCase] = useState(true);
   const [upperCase, setUpperCase] = useState(false);
   const [numbers, setNumbers] = useState(false);
   const [symbols, setSymbols] = useState(false);

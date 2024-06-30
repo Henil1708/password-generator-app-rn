@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {
   Image,
+  Linking,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -23,32 +24,6 @@ import {
 import PasswordGenerator from './components/PasswordGenerator';
 
 const App = () => {
-  const [password, setPassword] = useState('');
-  const [lowerCase, setLowerCase] = useState(false);
-  const [upperCase, setUpperCase] = useState(false);
-  const [numbers, setNumbers] = useState(false);
-  const [symbols, setSymbols] = useState(false);
-
-  // Function to generate password
-  const handleGeneratePassword = () => {
-    const newPassword = generatePasswordString(8, {
-      lowerCase,
-      upperCase,
-      numbers,
-      symbols,
-    });
-    setPassword(newPassword);
-  };
-
-  // Function to reset password state
-  const resetPasswordState = () => {
-    setPassword('');
-    setLowerCase(true);
-    setUpperCase(false);
-    setNumbers(false);
-    setSymbols(false);
-  };
-
   return (
     <>
       <PasswordGenerator />
